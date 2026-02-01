@@ -5,20 +5,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeSuccessModal = document.getElementById('closeSuccessModal');
     const okBtn = document.getElementById('okBtn');
     const submitBtn = document.getElementById('submitBtn');
-    
-    // Маска для телефону
     const phoneInput = document.getElementById('phone');
-    
-    phoneInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        
-        if (value.length > 0) {
-            value = '+38 (' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 8) + '-' + value.substring(8, 10);
-        }
-        
-        e.target.value = value;
-    });
-    
+
+phoneInput.addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '').substring(0, 12);
+
+    let formatted = '';
+
+    if (value.length > 0) formatted = '+38 ';
+    if (value.length > 2) formatted += '(' + value.substring(2, 5) + ') ';
+    if (value.length > 5) formatted += value.substring(5, 8);
+    if (value.length > 8) formatted += '-' + value.substring(8, 10);
+    if (value.length > 10) formatted += '-' + value.substring(10, 12);
+
+    e.target.value = formatted;
+});
+
     // Валідація форми
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -29,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Валідація полів
         const name = document.getElementById('name');
         const email = document.getElementById('email');
-        const subject = document.getElementById('subject');
         const message = document.getElementById('message');
         
         let isValid = true;
@@ -53,11 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Валідація теми
-        if (!subject.value) {
-            showError('subject', 'Будь ласка, оберіть тему повідомлення');
-            isValid = false;
-        }
+    
         
         // Валідація повідомлення
         if (!message.value.trim()) {
@@ -76,8 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Симуляція відправки форми (у реальному додатку тут буде AJAX запит)
             setTimeout(() => {
-                // Скидання форми
-                contactForm.reset();
+
                 
                 // Показати модальне вікно успіху
                 successModal.classList.add('active');
@@ -87,12 +83,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>Надіслати повідомлення</span><i class="fas fa-paper-plane"></i>';
                 
+                // Скидання форми
+                contactForm.reset();
+
                 // Записати у localStorage (симуляція відправки)
                 const formData = {
                     name: name.value,
                     email: email.value,
                     phone: phoneInput.value,
-                    subject: subject.options[subject.selectedIndex].text,
                     message: message.value,
                     newsletter: document.getElementById('newsletter').checked,
                     timestamp: new Date().toISOString()
@@ -223,13 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         isValid = false;
                     }
                     break;
-                    
-                case 'subject':
-                    if (!field.value) {
-                        errorMessage = 'Будь ласка, оберіть тему повідомлення';
-                        isValid = false;
-                    }
-                    break;
+                
                     
                 case 'message':
                     if (!field.value.trim()) {
